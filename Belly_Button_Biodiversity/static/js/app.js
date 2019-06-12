@@ -6,6 +6,7 @@ function buildMetadata(sample) {
   d3.json(`/metadata/${sample}`).then(function(response){
     console.log("guage no");
     console.log(response);
+    console.log(response.wfreq);
   
     // Use d3 to select the panel with id of `#sample-metadata`
     var panel = d3.select("#sample-metadata");
@@ -17,17 +18,81 @@ function buildMetadata(sample) {
     // Hint: Inside the loop, you will need to use d3 to append new
     // tags for each key-value in the metadata.
 
-    Object.entries(response).forEach(([key,value])=>{
-      panel.append('p').text(`${key} : ${value}`);
-    })
-    
+
     // BONUS: Build the Gauge Chart
     // buildGauge(data.WFREQ);
+    var washingFreq = [];
 
-    response.map(d => { 
-      const level = d.wfreq;
-      console.log(level);
+    Object.entries(response).forEach(([key,value])=>{
+      panel.append('p').text(`${key} : ${value}`);
+      if (key=='WFREQ') {
+        washingFreq.push(value);
+        washingFreq = +washingFreq;
+      }
     })
+
+    console.log(washingFreq);
+
+  /*************BONUS******************** */
+  //Guage Chart select
+  var gauge = d3.select("#gauge");
+  
+  // Convert washing freq to level
+  var level = (180 * (1/(10-washingFreq)));
+  console.log(level);
+    // Trig to calc meter point
+  var degrees = 180 - level,
+  radius = .5;
+  var radians = degrees * Math.PI / 180;
+  var x = radius * Math.cos(radians);
+  var y = radius * Math.sin(radians);
+
+  // Path: may have to change to create a better triangle
+  var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+    pathX = String(x),
+    space = ' ',
+    pathY = String(y),
+    pathEnd = ' Z';
+  var path = mainPath.concat(pathX,space,pathY,pathEnd);
+
+  var gdata = [{ type: 'scatter',
+  x: [0], y:[0],
+    marker: {size: 28, color:'850000'},
+    showlegend: false,
+    name: 'Washing Frequency',
+    text: level,
+    hoverinfo: 'text+name'},
+  { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9],
+  rotation: 0,
+  text: ['0-1', '1-2', '2-3', '3-4','4-5', '5-6', '6-7','7-8','8-9'],
+  textinfo: 'text',
+  textposition:'inside',
+  labels: ['0-1', '1-2', '2-3', '3-4','4-5', '5-6', '6-7','7-8','8-9'],
+  hoverinfo: 'label',
+  hole: .5,
+  type: 'pie',
+  showlegend: false
+  }];
+
+  var glayout = {
+  shapes:[{
+      type: 'path',
+      path: path,
+      fillcolor: '850000',
+      line: {
+        color: '850000'
+      }
+    }],
+  title: '<b>Gauge</b> <br> Washing Frequency 0-9',
+  height: 1000,
+  width: 1000,
+  xaxis: {zeroline:false, showticklabels:false,
+            showgrid: false, range: [-1, 1]},
+  yaxis: {zeroline:false, showticklabels:false,
+            showgrid: false, range: [-1, 1]}
+  };
+
+  Plotly.newPlot('gauge', gdata, glayout);
 
   })
 }
@@ -83,63 +148,6 @@ function buildCharts(sample) {
     };
 
     Plotly.newPlot('pie',trace2,layout2);
-
-//     //Guage Chart
-//     var panel = d3.select("#guage");
-
-//     // Trig to calc meter point
-//   var degrees = 180 - level,
-//   radius = .5;
-// var radians = degrees * Math.PI / 180;
-// var x = radius * Math.cos(radians);
-// var y = radius * Math.sin(radians);
-
-// // Path: may have to change to create a better triangle
-// var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
-//   pathX = String(x),
-//   space = ' ',
-//   pathY = String(y),
-//   pathEnd = ' Z';
-// var path = mainPath.concat(pathX,space,pathY,pathEnd);
-
-// var gdata = [{ type: 'scatter',
-// x: [0], y:[0],
-//   marker: {size: 28, color:'850000'},
-//   showlegend: false,
-//   name: 'Washing Frequency',
-//   text: level,
-//   hoverinfo: 'text+name'},
-// { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
-// rotation: 90,
-// text: ['0-1', '1-2', '2-3', '3-4','4-5', '5-6', '6-7','7-8','8-9'],
-// textinfo: 'text',
-// textposition:'inside',
-// labels: ['0-1', '1-2', '2-3', '3-4','4-5', '5-6', '6-7','7-8','8-9'],
-// hoverinfo: 'label',
-// hole: .5,
-// type: 'pie',
-// showlegend: false
-// }];
-
-// var glayout = {
-// shapes:[{
-//     type: 'path',
-//     path: path,
-//     fillcolor: '850000',
-//     line: {
-//       color: '850000'
-//     }
-//   }],
-// title: '<b>Gauge</b> <br> Speed 0-100',
-// height: 1000,
-// width: 1000,
-// xaxis: {zeroline:false, showticklabels:false,
-//           showgrid: false, range: [-1, 1]},
-// yaxis: {zeroline:false, showticklabels:false,
-//           showgrid: false, range: [-1, 1]}
-// };
-
-// Plotly.newPlot('guage', gdata, glayout);
 
   })
   
