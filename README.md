@@ -1,6 +1,6 @@
 # UCB Bootcamp Homework 
 
-Heroku App is published at: https://ucbbellyv01.herokuapp.com/
+Heroku App is published at: https://ucbbellyv02.herokuapp.com/
 
 
 # Belly Button Biodiversity
